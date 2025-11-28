@@ -1,0 +1,5 @@
+{
+  "name": "AutoReconcile AI",
+  "description": "An intelligent financial reconciliation dashboard that automatically matches bank transactions with internal book records using heuristic logic. Features CSV upload, variance analysis, and data visualization.",
+  "requestFramePermissions": []
+}
