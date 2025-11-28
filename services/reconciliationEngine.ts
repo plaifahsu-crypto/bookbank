@@ -209,7 +209,8 @@ export const reconcileData = (
     let matchReason: 'ID_TYPO' | 'WRONG_REF' | null = null;
     let bestConfidence = 0;
 
-    candidates.forEach(candidate => {
+    // Use for-of to prevent TS scope issues with implicit types inside forEach
+    for (const candidate of candidates) {
       let score = 0;
       let currentReason: 'ID_TYPO' | 'WRONG_REF' | null = null;
       let currentConfidence = 0;
@@ -264,15 +265,15 @@ export const reconcileData = (
         matchReason = currentReason;
         bestConfidence = currentConfidence;
       }
-    });
+    }
 
     if (bestCandidate && bestScore >= 30) {
-      bookUsedIndices.add((bestCandidate as BookTransaction).id);
+      const chosenCandidate = bestCandidate;
+      bookUsedIndices.add(chosenCandidate.id);
       bankUsedIndices.add(bankItem.id);
 
       let suggestedFix: SuggestedFix | undefined;
       let notes: string[] = [];
-      const chosenCandidate = bestCandidate as BookTransaction;
 
       if (matchReason === 'ID_TYPO') {
         notes.push("Possible invoice number typo.");
