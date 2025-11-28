@@ -175,8 +175,8 @@ export const reconcileData = (
   });
 
   // --- PASS 2: AI Smart Matching for Orphans (Scoring System) ---
-  const unmatchedBank = bankData.filter(b => !bankUsedIndices.has(b.id));
-  const unmatchedBook = bookData.filter(b => !bookUsedIndices.has(b.id));
+  const unmatchedBank: BankTransaction[] = bankData.filter(b => !bankUsedIndices.has(b.id));
+  const unmatchedBook: BookTransaction[] = bookData.filter(b => !bookUsedIndices.has(b.id));
 
   unmatchedBank.forEach(bankItem => {
     // DUPLICATE CHECK: If this invoice number was already matched in Pass 1, this is a duplicate in Bank
@@ -200,7 +200,7 @@ export const reconcileData = (
     }
 
     // Candidates: Book items with EXACT amount (or very close)
-    const candidates = unmatchedBook.filter(
+    const candidates: BookTransaction[] = unmatchedBook.filter(
       b => !bookUsedIndices.has(b.id) && Math.abs(b.amount - bankItem.total_amount) < 0.01
     );
 
@@ -267,27 +267,28 @@ export const reconcileData = (
     });
 
     if (bestCandidate && bestScore >= 30) {
-      bookUsedIndices.add(bestCandidate.id);
+      bookUsedIndices.add((bestCandidate as BookTransaction).id);
       bankUsedIndices.add(bankItem.id);
 
       let suggestedFix: SuggestedFix | undefined;
       let notes: string[] = [];
+      const chosenCandidate = bestCandidate as BookTransaction;
 
       if (matchReason === 'ID_TYPO') {
         notes.push("Possible invoice number typo.");
         suggestedFix = {
           type: FixType.ID_CORRECTION,
-          originalValue: bestCandidate.description,
+          originalValue: chosenCandidate.description,
           suggestedValue: bankItem.invoice_number,
-          reasoning: `Found entry with matching amount and similar ID (Levenshtein Dist: ${getLevenshteinDistance(bankItem.invoice_number, bestCandidate.description)}).`,
+          reasoning: `Found entry with matching amount and similar ID (Levenshtein Dist: ${getLevenshteinDistance(bankItem.invoice_number, chosenCandidate.description)}).`,
           confidence: bestConfidence
         };
       } else if (matchReason === 'WRONG_REF') {
         notes.push("Possible misclassified reference number.");
-        const dayDiff = getDaysDiff(bankItem.raw_date, bestCandidate.raw_date);
+        const dayDiff = getDaysDiff(bankItem.raw_date, chosenCandidate.raw_date);
         suggestedFix = {
           type: FixType.ID_CORRECTION,
-          originalValue: bestCandidate.description,
+          originalValue: chosenCandidate.description,
           suggestedValue: bankItem.invoice_number,
           reasoning: `Found entry with exact amount on ${dayDiff === 0 ? 'same day' : `nearby date (${dayDiff}d diff)`}. Likely recorded under wrong Reference ID.`,
           confidence: bestConfidence
@@ -298,7 +299,7 @@ export const reconcileData = (
         id: `rec-smart-${bankItem.id}`,
         status: MatchStatus.VARIANCE, // Treated as Variance since ID needs fixing
         bankTransaction: bankItem,
-        bookTransaction: bestCandidate,
+        bookTransaction: chosenCandidate,
         amountDifference: 0,
         notes,
         suggestedFix

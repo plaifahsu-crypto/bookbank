@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReconciliationInsights } from '../types';
-import { Brain, Lightbulb, TrendingUp, AlertOctagon, Activity, Clock } from 'lucide-react';
+import { Brain, Lightbulb, TrendingUp, Activity } from 'lucide-react';
 
 interface Props {
   insights: ReconciliationInsights;

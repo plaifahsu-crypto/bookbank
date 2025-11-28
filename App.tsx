@@ -3,7 +3,7 @@ import { UploadCloud, FileText, Check, AlertTriangle, PlayCircle } from 'lucide-
 import { parseBankCSV, parseBookCSV } from './services/parser';
 import { reconcileData } from './services/reconciliationEngine';
 import { generateInsights } from './services/insightGenerator';
-import { BankTransaction, BookTransaction, ReconciliationItem, ReconciliationSummary, ReconciliationInsights } from './types';
+import { ReconciliationItem, ReconciliationSummary, ReconciliationInsights } from './types';
 import { DashboardCharts } from './components/DashboardCharts';
 import { MatchTable } from './components/MatchTable';
 import { InsightsPanel } from './components/InsightsPanel';
